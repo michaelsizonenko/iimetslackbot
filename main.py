@@ -13,6 +13,8 @@ app = Flask(__name__)
 
 slack_client_token = os.environ["SLACK_CLIENT_TOKEN"]
 client = slack.WebClient(token=slack_client_token)
+slack_bot_token = os.environ["SLACK_BOT_TOKEN"]
+bot_client = slack.WebClient(token=slack_bot_token)
 
 pattern = r"Your request was submitted sucessfully. The request number is <strong>[a-zA-Z-0-9]+<\/strong>"
 re_obj = re.compile(pattern)
@@ -113,6 +115,10 @@ def send_create_ticket_request(fullname, email, subject, content):
     tree = html.fromstring(response_message.group())
     ticket_id = tree.xpath("strong")[0].text_content()
     print(f"Ticket ID : {ticket_id}")
+    bot_client.chat_postMessage(
+        channel="general",
+        text=f"New ticket created ! Ticket ID : {ticket_id}"
+    )
 
 
 @app.route('/interactive', methods=["GET", "POST"])
