@@ -34,11 +34,6 @@ def slack():
     return data.get("challenge")
 
 
-@app.route('/submit-ticket', methods=["GET", "POST"])
-def submit_ticket():
-    print("Submit ticket received !")
-
-
 @app.route('/ticket', methods=["GET", "POST"])
 def create_ticket():
     print("Create ticket received !")
