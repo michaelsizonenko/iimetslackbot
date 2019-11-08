@@ -2,7 +2,8 @@ import os
 import json
 import slack
 import requests
-from flask import Flask, escape, request
+from flask import Flask, escape, request, make_response
+
 
 app = Flask(__name__)
 
@@ -79,4 +80,10 @@ def command():
 @app.route('/interactive', methods=["GET", "POST"])
 def interactive():
     print("Interactive received !")
-    return {'ok': True}
+    print(f"Request form : {request.form}")
+    data = request.form.to_dict()
+    type_ = data.get("type")
+    if type_ == "dialog_submission":
+        return ""
+    return ""
+
