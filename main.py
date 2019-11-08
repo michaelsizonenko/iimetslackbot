@@ -30,8 +30,8 @@ def submit_ticket():
     print("Submit ticket received !")
 
 
-@app.route('/command', methods=["GET", "POST"])
-def command():
+@app.route('/ticket', methods=["GET", "POST"])
+def create_ticket():
     print("Command received !")
 
     data = request.form.to_dict()
@@ -46,19 +46,26 @@ def command():
         data=json.dumps({
             "dialog": {
                 "callback_id": "submit-ticket",
-                "title": "Request a Ride",
+                "title": "Create a ticket",
                 "submit_label": "Request",
                 "state": "Limo",
                 "elements": [
                     {
                         "type": "text",
-                        "label": "Pickup Location",
-                        "name": "loc_origin"
+                        "label": "Email",
+                        "subtype": "email",
+                        "name": "email"
                     },
                     {
                         "type": "text",
-                        "label": "Dropoff Location",
-                        "name": "loc_destination"
+                        "label": "Subject",
+                        "name": "subject",
+                        "value": text
+                    },
+                    {
+                        "type": "textarea",
+                        "label": "Content",
+                        "name": "content"
                     }
                 ]
             },
@@ -73,16 +80,21 @@ def command():
     print(f"Response status : {response_status}")
     response_json = r.json()
     print(f"Response json : {response_json}")
+    if not response_json.get("ok"):
+        return "Error occurred"
+    return "Dialog created"
 
-    return response_json
 
 
 @app.route('/interactive', methods=["GET", "POST"])
 def interactive():
     print("Interactive received !")
-    print(f"Request form : {request.form}")
     data = request.form.to_dict()
-    type_ = data.get("type")
+    print(f"Request form : {data}")
+    payload = json.loads(data.get("payload"))
+    print(f"Payload : {payload}")
+    type_ = payload.get("type")
+    print(f"Type {type_}")
     if type_ == "dialog_submission":
         return ""
     return ""
