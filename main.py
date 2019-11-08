@@ -1,8 +1,10 @@
 import os
+import re
 import json
 import slack
 import requests
 import validators
+from lxml import html
 from flask import Flask, escape, request, make_response
 
 app = Flask(__name__)
@@ -10,6 +12,8 @@ app = Flask(__name__)
 slack_client_token = os.environ["SLACK_CLIENT_TOKEN"]
 client_web_client = slack.WebClient(token=slack_client_token)
 
+pattern = r"Your request was submitted sucessfully. The request number is <strong>[a-zA-Z-0-9]+<\/strong>"
+re_obj = re.compile(pattern)
 
 @app.route('/')
 def hello():
@@ -122,5 +126,13 @@ def interactive():
         }
     )
     print(f"Created form response code {r.status_code}")
-    print(f"Created form response content {r.content}")
+    text_response = r.text
+    # print(f"Created form response text : {text_response}")
+    response_message = re_obj.search(text_response)
+    if not response_message:
+        return "Could not create a ticket !"
+    print(response_message)
+    tree = html.fromstring(response_message.group())
+    ticket_id = tree.xpath("strong")[0].text_content()
+    print(f"Ticket ID : {ticket_id}")
     return ""
