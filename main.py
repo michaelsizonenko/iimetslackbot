@@ -2,8 +2,8 @@ import os
 import json
 import slack
 import requests
+import validators
 from flask import Flask, escape, request, make_response
-
 
 app = Flask(__name__)
 
@@ -32,11 +32,11 @@ def submit_ticket():
 
 @app.route('/ticket', methods=["GET", "POST"])
 def create_ticket():
-    print("Command received !")
+    print("Create ticket received !")
 
     data = request.form.to_dict()
 
-    print(f"Command form : {data}")
+    print(f"Create ticket form : {data}")
     text = data.get("text")
     trigger_id = data.get("trigger_id")
     print(f"Trigger ID : {trigger_id}")
@@ -50,6 +50,11 @@ def create_ticket():
                 "submit_label": "Request",
                 "state": "Limo",
                 "elements": [
+                    {
+                        "type": "text",
+                        "label": "Full name",
+                        "name": "fullname"
+                    },
                     {
                         "type": "text",
                         "label": "Email",
@@ -85,7 +90,6 @@ def create_ticket():
     return "Dialog created"
 
 
-
 @app.route('/interactive', methods=["GET", "POST"])
 def interactive():
     print("Interactive received !")
@@ -93,9 +97,30 @@ def interactive():
     print(f"Request form : {data}")
     payload = json.loads(data.get("payload"))
     print(f"Payload : {payload}")
+    submission = payload.get("submission")
     type_ = payload.get("type")
     print(f"Type {type_}")
-    if type_ == "dialog_submission":
-        return ""
+    if type_ != "dialog_submission":
+        return "something goes wrong"
+    if not validators.email(submission.get("email")):
+        return "Invalid e-mail ! Please correct your data !"
+    r = requests.post(
+        "http://iimet.wwwshine.supersitedns.com/project/API/examples/ticket_form.php",
+        data={
+            "page": "general",
+            "department_id": 1,
+            "creator_full_name": submission.get("fullname"),
+            "creator_email": submission.get("email"),
+            "type_id": 1,
+            "priority_id": 1,
+            "subject": submission.get("subject"),
+            "contents": submission.get("content"),
+            "submit_general": "Submit"
+        },
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+    )
+    print(f"Created form response code {r.status_code}")
+    print(f"Created form response content {r.content}")
     return ""
-
