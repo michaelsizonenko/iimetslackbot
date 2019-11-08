@@ -117,7 +117,7 @@ def send_create_ticket_request(fullname, email, subject, content):
     print(f"Ticket ID : {ticket_id}")
     bot_client.chat_postMessage(
         channel="general",
-        text=f"New ticket created ! Ticket ID : {ticket_id}"
+        text=f"New ticket created ! Ticket ID : *{ticket_id}*"
     )
 
 
