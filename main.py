@@ -136,3 +136,9 @@ def interactive():
     thread = Thread(target=send_create_ticket_request, kwargs=submission)
     thread.start()
     return ""
+
+
+@app.route("/break", methods=["GET", "POST"])
+def break_func():
+    print("Break received !")
+    return "Well. Break."
