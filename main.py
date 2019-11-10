@@ -1,4 +1,5 @@
 import re
+import os
 import json
 import logging
 from threading import Thread
@@ -12,7 +13,11 @@ from flask import Flask, escape, request
 from config import config
 from strings import string_instance
 
-logging.basicConfig(level=logging.DEBUG)
+debug_mode = os.environ.get("FLASK_DEBUG")
+if debug_mode:
+    logging.basicConfig(level=logging.DEBUG)
+else:
+    logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 
