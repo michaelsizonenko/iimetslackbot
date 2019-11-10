@@ -19,6 +19,8 @@ bot_client = slack.WebClient(token=config.slack_bot_token)
 pattern = r"Your request was submitted sucessfully. The request number is <strong>[a-zA-Z-0-9]+<\/strong>"
 re_obj = re.compile(pattern)
 
+session = requests.Session()
+
 
 @app.route('/')
 def hello():
@@ -84,7 +86,7 @@ def create_ticket():
 
 
 def send_create_ticket_request(fullname, email, subject, content):
-    r = requests.post(
+    r = session.post(
         "http://iimet.wwwshine.supersitedns.com/project/API/examples/ticket_form.php",
         data={
             "page": config.ticket_id_delivery_channel,
