@@ -9,6 +9,7 @@ from lxml import html
 from flask import Flask, escape, request
 
 from config import config
+from strings import string_instance
 
 app = Flask(__name__)
 
@@ -20,6 +21,20 @@ pattern = r"Your request was submitted sucessfully. The request number is <stron
 re_obj = re.compile(pattern)
 
 session = requests.Session()
+
+
+def break_lunch(username, params):
+    raise NotImplementedError
+
+
+def break_help(username, params):
+    return string_instance.help
+
+
+break_sub_command_list = {
+    "help": break_help,
+    "lunch": break_lunch
+}
 
 
 @app.route('/')
@@ -140,5 +155,45 @@ def interactive():
 
 @app.route("/break", methods=["GET", "POST"])
 def break_func():
-    print("Break received !")
-    return "Well. Break."
+    result = ""
+    try:
+        print("Break received !")
+        data = request.form.to_dict()
+        print(f"Break data : {data}")
+        username = data.get("user_name")
+        params = data.get("text")
+        sub_command = params.split(" ")[0]
+        if sub_command.isdigit():
+            raise NotImplementedError
+        try:
+            result = break_sub_command_list[sub_command](username, params)
+        except KeyError as unexpected_command:
+            result = "Unrecognized command received : {} . Use /break help for information".format(sub_command)
+    except Exception as e:
+        result = "Unexpected error. Please contact the admin."
+    finally:
+        return result
+
+
+@app.route("/lunch", methods=["GET", "POST"])
+def lunch():
+    print("Lunch")
+    return "Have a good lunch!"
+
+
+@app.route("/brb", methods=["GET", "POST"])
+def brb():
+    print("Brb")
+    return "Yes. Have a break."
+
+
+@app.route("/end", methods=["GET", "POST"])
+def end():
+    print("End")
+    return "Good bye !"
+
+
+@app.route("/back", methods=["GET", "POST"])
+def back():
+    print("Back")
+    return "Welcome back !"
