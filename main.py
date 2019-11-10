@@ -1,4 +1,3 @@
-import os
 import re
 import json
 from threading import Thread
@@ -7,14 +6,15 @@ import slack
 import requests
 import validators
 from lxml import html
-from flask import Flask, escape, request, make_response
+from flask import Flask, escape, request
+
+from config import config
 
 app = Flask(__name__)
 
-slack_client_token = os.environ["SLACK_CLIENT_TOKEN"]
-client = slack.WebClient(token=slack_client_token)
-slack_bot_token = os.environ["SLACK_BOT_TOKEN"]
-bot_client = slack.WebClient(token=slack_bot_token)
+
+client = slack.WebClient(token=config.slack_client_token)
+bot_client = slack.WebClient(token=config.slack_bot_token)
 
 pattern = r"Your request was submitted sucessfully. The request number is <strong>[a-zA-Z-0-9]+<\/strong>"
 re_obj = re.compile(pattern)
@@ -87,8 +87,8 @@ def send_create_ticket_request(fullname, email, subject, content):
     r = requests.post(
         "http://iimet.wwwshine.supersitedns.com/project/API/examples/ticket_form.php",
         data={
-            "page": "general",
-            "department_id": 1,
+            "page": config.ticket_id_delivery_channel,
+            "department_id": config.department_id,
             "creator_full_name": fullname,
             "creator_email": email,
             "type_id": 1,
