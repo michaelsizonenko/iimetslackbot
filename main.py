@@ -31,12 +31,12 @@ re_obj = re.compile(pattern)
 session = requests.Session()
 
 
-def break_lunch(username, params):
+def break_lunch(username: str, params: str):
     raise NotImplementedError
 
 
-def break_help(username, params):
-    return string_instance.help
+def break_help(username: str, params: str):
+    return string_instance.menu
 
 
 break_sub_command_list = {
@@ -108,7 +108,7 @@ def create_ticket():
     return "Error occurred"
 
 
-def send_create_ticket_request(fullname, email, subject, content):
+def send_create_ticket_request(fullname: str, email: str, subject: str, content: str):
     r = session.post(
         "http://iimet.wwwshine.supersitedns.com/project/API/examples/ticket_form.php",
         data={
