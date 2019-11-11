@@ -50,8 +50,10 @@ class GoogleSheetWrapper:
     def get_data(self):
         result = self.sheet_service.spreadsheets().values().get(
             spreadsheetId=config.spreadsheet_id, range=config.range).execute()
+        logger.debug(f"Sheet data : {result}")
         rows = result.get('values', [])
         logger.info('{0} rows retrieved.'.format(len(rows)))
+        return rows
 
 
 google_sheet_wrapper = GoogleSheetWrapper()
