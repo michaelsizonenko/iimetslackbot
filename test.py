@@ -27,7 +27,7 @@ class SlackBotTest(unittest.TestCase):
         self.assertTrue(os.path.exists("credentials.json"))
         self.assertTrue(config.sheet_url)
         from google_sheet_wrapper import google_sheet_wrapper
-        self.assertIsNotNone(google_sheet_wrapper.get_data())
+        self.assertIsNotNone(google_sheet_wrapper.get_existed_data())
 
 
 if __name__ == "__main__":

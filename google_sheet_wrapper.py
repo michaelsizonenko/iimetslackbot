@@ -10,7 +10,7 @@ from main_logger import logger
 
 class GoogleSheetWrapper:
 
-    data = None
+    data = []
     sheet_scopes = [
         'https://www.googleapis.com/auth/spreadsheets.readonly',
         'https://www.googleapis.com/auth/spreadsheets',
@@ -46,14 +46,35 @@ class GoogleSheetWrapper:
         self.sheet_service = self.get_sheet_service()
         self.spreadsheet_id = config.spreadsheet_id
         self.range = config.range
+        self.data = self.get_existed_data()
+        if not self.data:
+            self.add_header()
 
-    def get_data(self):
+    def get_existed_data(self):
         result = self.sheet_service.spreadsheets().values().get(
             spreadsheetId=config.spreadsheet_id, range=config.range).execute()
         logger.debug(f"Sheet data : {result}")
         rows = result.get('values', [])
         logger.info('{0} rows retrieved.'.format(len(rows)))
         return rows
+
+    def add_header(self):
+        values = [
+            [
+                # Cell values ...
+                "Slack username",
+                "Clock in",
+                "Breaks",
+                "Clock out"
+            ],
+            # Additional rows ...
+        ]
+        body = {
+            'values': values
+        }
+        result = self.sheet_service.spreadsheets().values().update(
+            spreadsheetId=self.spreadsheet_id, range=self.range,
+            valueInputOption="USER_ENTERED", body=body).execute()
 
 
 google_sheet_wrapper = GoogleSheetWrapper()
