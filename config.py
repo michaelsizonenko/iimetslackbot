@@ -16,6 +16,7 @@ class Config:
             self.sheet_url = config_data["sheet_url"]
             self.spreadsheet_id = self.get_spreadsheet_id()
             self.sheet_id = self.get_sheet_id()
+            self.range = config_data["range"]
 
     def get_spreadsheet_id(self):
         return re.search(r"/spreadsheets/d/([a-zA-Z0-9-_]+)", self.sheet_url).group().split('/spreadsheets/d/')[1]

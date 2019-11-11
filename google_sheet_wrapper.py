@@ -44,11 +44,11 @@ class GoogleSheetWrapper:
     def __init__(self):
         self.sheet_service = self.get_sheet_service()
         self.spreadsheet_id = config.spreadsheet_id
-        self.range_name = config.range_name
+        self.range = config.range
 
     def get_data(self):
         result = self.sheet_service.spreadsheets().values().get(
-            spreadsheetId=spreadsheet_id, range=range_name).execute()
+            spreadsheetId=config.spreadsheet_id, range=config.range).execute()
         rows = result.get('values', [])
         logging.debug('{0} rows retrieved.'.format(len(rows)))
 

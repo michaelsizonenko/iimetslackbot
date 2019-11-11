@@ -19,8 +19,8 @@ class SlackBotTest(unittest.TestCase):
         self.assertRegex(config.sheet_url, r"[#&]gid=([0-9]+)")
         self.assertIsNotNone(config.spreadsheet_id)
         self.assertIsNotNone(config.sheet_id)
+        self.assertIsNotNone(config.range)
 
-    @unittest.skip("later")
     def test_google_sheet_wrapper(self):
         config = Config()
         self.assertTrue(os.path.exists("credentials.json"))
