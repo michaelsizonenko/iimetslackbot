@@ -1,10 +1,11 @@
-import logging
 from config import config
 import pickle
 import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+
+from main_logger import logger
 
 
 class GoogleSheetWrapper:
@@ -50,7 +51,7 @@ class GoogleSheetWrapper:
         result = self.sheet_service.spreadsheets().values().get(
             spreadsheetId=config.spreadsheet_id, range=config.range).execute()
         rows = result.get('values', [])
-        logging.debug('{0} rows retrieved.'.format(len(rows)))
+        logger.info('{0} rows retrieved.'.format(len(rows)))
 
 
 google_sheet_wrapper = GoogleSheetWrapper()

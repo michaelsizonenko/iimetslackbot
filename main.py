@@ -1,7 +1,5 @@
 import re
-import os
 import json
-import logging
 from threading import Thread
 
 import slack
@@ -10,14 +8,10 @@ import validators
 from lxml import html
 from flask import Flask, escape, request
 
+from main_logger import logger
 from config import config
 from strings import string_instance
 
-debug_mode = os.environ.get("FLASK_DEBUG")
-if debug_mode:
-    logging.basicConfig(level=logging.DEBUG)
-else:
-    logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 
@@ -53,22 +47,22 @@ def hello():
 
 @app.route('/slack/event', methods=["GET", "POST"])
 def slack():
-    logging.info("Event received !")
-    logging.debug(f"Event data : {request.data}")
+    logger.info("Event received !")
+    logger.debug(f"Event data : {request.data}")
     data = request.json
     return data.get("challenge")
 
 
 @app.route('/ticket', methods=["GET", "POST"])
 def create_ticket():
-    logging.info("Create ticket received !")
+    logger.info("Create ticket received !")
 
     data = request.form.to_dict()
 
-    logging.debug(f"Create ticket form : {data}")
+    logger.debug(f"Create ticket form : {data}")
     text = data.get("text")
     trigger_id = data.get("trigger_id")
-    logging.debug(f"Trigger ID : {trigger_id}")
+    logger.debug(f"Trigger ID : {trigger_id}")
 
     r = client.dialog_open(
         dialog={
@@ -126,15 +120,15 @@ def send_create_ticket_request(fullname: str, email: str, subject: str, content:
             "Content-Type": "application/x-www-form-urlencoded"
         }
     )
-    logging.debug(f"Created form response code {r.status_code}")
+    logger.debug(f"Created form response code {r.status_code}")
     text_response = r.text
-    logging.debug(f"Created form response text : {text_response}")
+    logger.debug(f"Created form response text : {text_response}")
     response_message = re_obj.search(text_response)
     if not response_message:
         return "Could not create a ticket !"
     tree = html.fromstring(response_message.group())
     ticket_id = tree.xpath("strong")[0].text_content()
-    logging.debug(f"Ticket ID : {ticket_id}")
+    logger.debug(f"Ticket ID : {ticket_id}")
     bot_client.chat_postMessage(
         channel="general",
         text=f"New ticket created ! Ticket ID : *{ticket_id}*"
@@ -143,14 +137,14 @@ def send_create_ticket_request(fullname: str, email: str, subject: str, content:
 
 @app.route('/interactive', methods=["GET", "POST"])
 def interactive():
-    logging.info("Interactive received !")
+    logger.info("Interactive received !")
     data = request.form.to_dict()
-    logging.debug(f"Request form : {data}")
+    logger.debug(f"Request form : {data}")
     payload = json.loads(data.get("payload"))
-    logging.debug(f"Payload : {payload}")
+    logger.debug(f"Payload : {payload}")
     submission = payload.get("submission")
     type_ = payload.get("type")
-    logging.debug(f"Type {type_}")
+    logger.debug(f"Type {type_}")
     if type_ != "dialog_submission":
         return "something goes wrong"
     if not validators.email(submission.get("email")):
@@ -165,9 +159,9 @@ def interactive():
 def break_func():
     result = ""
     try:
-        logging.info("Break received !")
+        logger.info("Break received !")
         data = request.form.to_dict()
-        logging.debug(f"Break data : {data}")
+        logger.debug(f"Break data : {data}")
         username = data.get("user_name")
         params = data.get("text")
         sub_command = params.split(" ")[0]
@@ -178,7 +172,7 @@ def break_func():
         except KeyError as unexpected_command:
             result = "Unrecognized command received : {} . Use /break help for information".format(sub_command)
     except Exception as e:
-        logging.error(e, exc_info=True)
+        logger.error(e, exc_info=True)
         result = "Unexpected error. Please contact the admin."
     finally:
         return result
@@ -186,23 +180,23 @@ def break_func():
 
 @app.route("/lunch", methods=["GET", "POST"])
 def lunch():
-    logging.info("Lunch")
+    logger.info("Lunch")
     return "Have a good lunch!"
 
 
 @app.route("/brb", methods=["GET", "POST"])
 def brb():
-    logging.info("Brb")
+    logger.info("Brb")
     return "Yes. Have a break."
 
 
 @app.route("/end", methods=["GET", "POST"])
 def end():
-    logging.info("End")
+    logger.info("End")
     return "Good bye !"
 
 
 @app.route("/back", methods=["GET", "POST"])
 def back():
-    logging.info("Back")
+    logger.info("Back")
     return "Welcome back !"

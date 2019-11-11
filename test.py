@@ -1,5 +1,6 @@
 import unittest
 import os
+from main_logger import logger
 import validators
 
 from config import Config
