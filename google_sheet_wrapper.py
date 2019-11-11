@@ -1,3 +1,4 @@
+import logging
 from config import config
 import pickle
 import os.path
@@ -10,7 +11,8 @@ class GoogleSheetWrapper:
 
     data = None
     sheet_scopes = [
-        'https://www.googleapis.com/auth/spreadsheets.readonly'
+        'https://www.googleapis.com/auth/spreadsheets.readonly',
+        'https://www.googleapis.com/auth/spreadsheets',
     ]
     sheet_service = None
 
@@ -41,6 +43,14 @@ class GoogleSheetWrapper:
 
     def __init__(self):
         self.sheet_service = self.get_sheet_service()
+        self.spreadsheet_id = config.spreadsheet_id
+        self.range_name = config.range_name
+
+    def get_data(self):
+        result = self.sheet_service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id, range=range_name).execute()
+        rows = result.get('values', [])
+        logging.debug('{0} rows retrieved.'.format(len(rows)))
 
 
 google_sheet_wrapper = GoogleSheetWrapper()
