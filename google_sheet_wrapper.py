@@ -1,6 +1,7 @@
 from config import config
 import pickle
 import os.path
+from slack_client import *
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -49,6 +50,7 @@ class GoogleSheetWrapper:
         self.data = self.get_existed_data()
         if not self.data:
             self.add_header()
+        self.existed_users = get_slack_username_list()
 
     def get_existed_data(self):
         result = self.sheet_service.spreadsheets().values().get(
@@ -75,6 +77,11 @@ class GoogleSheetWrapper:
         self.sheet_service.spreadsheets().values().update(
             spreadsheetId=self.spreadsheet_id, range=self.range,
             valueInputOption="USER_ENTERED", body=body).execute()
+
+    def get_data_by_user(self, username):
+        if username not in self.existed_users:
+            raise Exception("Unknown user")
+#         todo: continue here
 
 
 google_sheet_wrapper = GoogleSheetWrapper()

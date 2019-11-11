@@ -2,7 +2,7 @@ import re
 import json
 from threading import Thread
 
-import slack
+from slack_client import *
 import requests
 import validators
 from lxml import html
@@ -15,9 +15,6 @@ from strings import string_instance
 
 app = Flask(__name__)
 
-
-client = slack.WebClient(token=config.slack_client_token)
-bot_client = slack.WebClient(token=config.slack_bot_token)
 
 pattern = r"Your request was submitted sucessfully. The request number is <strong>[a-zA-Z-0-9]+<\/strong>"
 re_obj = re.compile(pattern)
@@ -63,43 +60,7 @@ def create_ticket():
     text = data.get("text")
     trigger_id = data.get("trigger_id")
     logger.debug(f"Trigger ID : {trigger_id}")
-
-    r = client.dialog_open(
-        dialog={
-            "callback_id": "submit-ticket",
-            "title": "Create a ticket",
-            "submit_label": "Request",
-            "state": "Limo",
-            "elements": [
-                {
-                    "type": "text",
-                    "label": "Full name",
-                    "name": "fullname"
-                },
-                {
-                    "type": "text",
-                    "label": "Email",
-                    "subtype": "email",
-                    "name": "email"
-                },
-                {
-                    "type": "text",
-                    "label": "Subject",
-                    "name": "subject",
-                    "value": text
-                },
-                {
-                    "type": "textarea",
-                    "label": "Content",
-                    "name": "content"
-                }
-            ]
-        },
-        trigger_id=trigger_id
-    )
-    if r.get("ok"):
-        return "Dialog created"
-    return "Error occurred"
+    return open_dialog(text, trigger_id)
 
 
 def send_create_ticket_request(fullname: str, email: str, subject: str, content: str):
@@ -176,6 +137,18 @@ def break_func():
         result = "Unexpected error. Please contact the admin."
     finally:
         return result
+
+
+@app.route("/clockin", methods=["GET", "POST"])
+def clock_in():
+    logger.info("Clock in")
+    return "Have a good day!"
+
+
+@app.route("/clockout", methods=["GET", "POST"])
+def clock_out():
+    logger.info("Clock out")
+    return "Have a good rest!"
 
 
 @app.route("/lunch", methods=["GET", "POST"])
