@@ -2,7 +2,7 @@
   "slack_client_token": "",
   "slack_bot_token": "",
   "department_id": 1,
-  "ticket_id_delivery_channel": "general",
-  "sheet_url": ""
+  "sheet_url": "",
+  "range": ""
 
 }

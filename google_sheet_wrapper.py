@@ -72,7 +72,7 @@ class GoogleSheetWrapper:
         body = {
             'values': values
         }
-        result = self.sheet_service.spreadsheets().values().update(
+        self.sheet_service.spreadsheets().values().update(
             spreadsheetId=self.spreadsheet_id, range=self.range,
             valueInputOption="USER_ENTERED", body=body).execute()
 

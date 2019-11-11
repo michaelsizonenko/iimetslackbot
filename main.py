@@ -102,11 +102,11 @@ def create_ticket():
     return "Error occurred"
 
 
-def send_create_ticket_request(fullname: str, email: str, subject: str, content: str):
+def send_create_ticket_request(fullname: str, email: str, subject: str, content: str, channel_name: str):
     r = session.post(
         "http://iimet.wwwshine.supersitedns.com/project/API/examples/ticket_form.php",
         data={
-            "page": config.ticket_id_delivery_channel,
+            # "page": config.ticket_id_delivery_channel,
             "department_id": config.department_id,
             "creator_full_name": fullname,
             "creator_email": email,
@@ -130,8 +130,8 @@ def send_create_ticket_request(fullname: str, email: str, subject: str, content:
     ticket_id = tree.xpath("strong")[0].text_content()
     logger.debug(f"Ticket ID : {ticket_id}")
     bot_client.chat_postMessage(
-        channel="general",
-        text=f"New ticket created ! Ticket ID : *{ticket_id}*"
+        channel=channel_name,
+        text=f"New ticket created ! Ticket ID : *{ticket_id}* / http://iimet.wwwshine.supersitedns.com/project/support/staff/index.php?/Tickets/Ticket/View/{ticket_id}"
     )
 
 
@@ -143,6 +143,7 @@ def interactive():
     payload = json.loads(data.get("payload"))
     logger.debug(f"Payload : {payload}")
     submission = payload.get("submission")
+    submission["channel_name"] = data.get("channel_name")
     type_ = payload.get("type")
     logger.debug(f"Type {type_}")
     if type_ != "dialog_submission":
