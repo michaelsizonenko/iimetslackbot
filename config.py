@@ -12,6 +12,7 @@ class Config:
             self.slack_bot_token = config_data["slack_bot_token"]
             self.department_id = config_data["department_id"]
             self.ticket_id_delivery_channel = config_data["ticket_id_delivery_channel"]
+            self.sheet = config_data["sheet"]
 
 
 config = Config()
