@@ -106,7 +106,7 @@ def send_create_ticket_request(fullname: str, email: str, subject: str, content:
     r = session.post(
         "http://iimet.wwwshine.supersitedns.com/project/API/examples/ticket_form.php",
         data={
-            # "page": config.ticket_id_delivery_channel,
+            "page": "general",
             "department_id": config.department_id,
             "creator_full_name": fullname,
             "creator_email": email,
@@ -143,7 +143,9 @@ def interactive():
     payload = json.loads(data.get("payload"))
     logger.debug(f"Payload : {payload}")
     submission = payload.get("submission")
-    submission["channel_name"] = data.get("channel_name")
+    channel = payload.get("channel")
+    logger.debug(f"Channel name : {channel}")
+    submission["channel_name"] = channel.get("name")
     type_ = payload.get("type")
     logger.debug(f"Type {type_}")
     if type_ != "dialog_submission":
