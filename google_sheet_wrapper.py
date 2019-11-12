@@ -10,12 +10,14 @@ from google.auth.transport.requests import Request
 from main_logger import logger
 
 
+USER_ENTERED = "USER_ENTERED"
+
+
 class UnknownSlackUser(Exception):
     pass
 
 
 class GoogleSheetWrapper:
-
     data = []
     sheet_scopes = [
         'https://www.googleapis.com/auth/spreadsheets.readonly',
@@ -61,7 +63,7 @@ class GoogleSheetWrapper:
         result = self.sheet_service.spreadsheets().values().get(
             spreadsheetId=config.spreadsheet_id, range=config.range).execute()
         logger.debug(f"Sheet data : {result}")
-        rows = result.get('values', [])
+        rows = result.get('values', [])[1:]
         logger.info('{0} rows retrieved.'.format(len(rows)))
         return rows
 
@@ -81,7 +83,7 @@ class GoogleSheetWrapper:
         }
         self.sheet_service.spreadsheets().values().update(
             spreadsheetId=self.spreadsheet_id, range=self.range,
-            valueInputOption="USER_ENTERED", body=body).execute()
+            valueInputOption=USER_ENTERED, body=body).execute()
 
     def check_slack_user_exists(self, username):
         if username not in self.existed_users:
@@ -92,10 +94,29 @@ class GoogleSheetWrapper:
 
     def get_data_by_user(self, username):
         self.check_slack_user_exists(username)
+        all_data = self.get_existed_data()
+        logger.debug(f"All data : {all_data}")
         return ClockRowItem()
 
     def clock_in(self, username):
-        self.check_slack_user_exists(username)
+        clock_row_item = self.get_data_by_user(username)
+        clock_row_item.set_clock_in()
+        self.append_row(clock_row_item)
+        return clock_row_item
+
+    def append_row(self, item):
+        body = {
+            "values": [
+                item.to_google_list()
+            ]
+        }
+        request = self.sheet_service.spreadsheets().values().append(
+            spreadsheetId=self.spreadsheet_id,
+            range=self.range,
+            valueInputOption=USER_ENTERED,
+            body=body
+        )
+        response = request.execute()
 
 
 google_sheet_wrapper = GoogleSheetWrapper()

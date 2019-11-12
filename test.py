@@ -1,6 +1,7 @@
 import unittest
 import os
-
+import time
+from datetime import datetime
 from clock_row_model import ClockRowItem
 from google_sheet_wrapper import UnknownSlackUser
 from main_logger import logger
@@ -9,6 +10,7 @@ import validators
 
 from config import Config
 
+DATE_FORMAT = "%Y-%m-%d %H:%M"
 
 class SlackBotTest(unittest.TestCase):
 
@@ -26,6 +28,17 @@ class SlackBotTest(unittest.TestCase):
         self.assertIsNotNone(config.sheet_id)
         self.assertIsNotNone(config.range)
 
+    def test_clock_item(self):
+        clock_item = ClockRowItem()
+        self.assertEqual(clock_item.to_google_list(), ["", "", ""])
+        clock_item.set_clock_in()
+        test_clock_in = datetime.utcnow()
+        self.assertEqual(clock_item.to_google_list(), [test_clock_in.strftime(DATE_FORMAT), "", ""])
+        clock_item.set_clock_out()
+        test_clock_out = datetime.utcnow()
+        self.assertEqual(clock_item.to_google_list(), [test_clock_in.strftime(DATE_FORMAT), "", test_clock_out.strftime(DATE_FORMAT)])
+
+    @unittest.skip("not for a long time")
     def test_google_sheet_wrapper(self):
         config = Config()
         self.assertTrue(os.path.exists("credentials.json"))
@@ -121,6 +134,10 @@ class SlackBotTest(unittest.TestCase):
         self.assertEqual(test_user_data, empty_row_model)
         with self.assertRaises(UnknownSlackUser):
             google_sheet_wrapper.clock_in("test")
+        google_sheet_wrapper.clock_in("michael.sizonenko.17")
+        test_user_data = google_sheet_wrapper.get_data_by_user("michael.sizonenko.17")
+        logger.debug(f"Test user data : {test_user_data}")
+        self.assertAlmostEqual(time.mktime(test_user_data.get_clock_in().timetuple()), time.mktime(datetime.utcnow().timetuple()))
 
 
 if __name__ == "__main__":
