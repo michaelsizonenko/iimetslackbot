@@ -1,5 +1,7 @@
 import unittest
 import os
+
+from clock_row_model import ClockRowItem
 from main_logger import logger
 from utils import extract_usernames
 import validators
@@ -114,7 +116,8 @@ class SlackBotTest(unittest.TestCase):
         with self.assertRaises(Exception):
             test_user_data = google_sheet_wrapper.get_data_by_user("test")
         test_user_data = google_sheet_wrapper.get_data_by_user('michael.sizonenko.17')
-        self.assertEqual(test_user_data, )
+        empty_row_model = ClockRowItem()
+        self.assertEqual(test_user_data, empty_row_model)
 
 
 if __name__ == "__main__":

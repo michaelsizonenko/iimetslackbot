@@ -1,3 +1,4 @@
+from clock_row_model import ClockRowItem
 from config import config
 import pickle
 import os.path
@@ -81,7 +82,7 @@ class GoogleSheetWrapper:
     def get_data_by_user(self, username):
         if username not in self.existed_users:
             raise Exception("Unknown user")
-#         todo: continue here
+        return ClockRowItem()
 
 
 google_sheet_wrapper = GoogleSheetWrapper()

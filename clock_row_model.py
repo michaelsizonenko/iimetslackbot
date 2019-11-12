@@ -4,10 +4,13 @@ class BreakItem:
     end = None
 
 
-class ClockRow:
+class ClockRowItem:
 
     clock_in = None
-    breaks = [
-
-    ]
+    breaks = set()
     clock_out = None
+
+    def __eq__(self, other):
+        if not isinstance(other, ClockRowItem):
+            return False
+        return self.clock_in == other.clock_in and self.clock_out == other.clock_out and self.breaks == other.breaks
