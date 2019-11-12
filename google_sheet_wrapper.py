@@ -10,6 +10,10 @@ from google.auth.transport.requests import Request
 from main_logger import logger
 
 
+class UnknownSlackUser(Exception):
+    pass
+
+
 class GoogleSheetWrapper:
 
     data = []
@@ -79,10 +83,19 @@ class GoogleSheetWrapper:
             spreadsheetId=self.spreadsheet_id, range=self.range,
             valueInputOption="USER_ENTERED", body=body).execute()
 
-    def get_data_by_user(self, username):
+    def check_slack_user_exists(self, username):
         if username not in self.existed_users:
-            raise Exception("Unknown user")
+            self.existed_users = get_slack_username_list()
+            if username not in self.existed_users:
+                raise UnknownSlackUser("Unknown user")
+        return True
+
+    def get_data_by_user(self, username):
+        self.check_slack_user_exists(username)
         return ClockRowItem()
+
+    def clock_in(self, username):
+        self.check_slack_user_exists(username)
 
 
 google_sheet_wrapper = GoogleSheetWrapper()

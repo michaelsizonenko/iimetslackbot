@@ -2,6 +2,7 @@ import unittest
 import os
 
 from clock_row_model import ClockRowItem
+from google_sheet_wrapper import UnknownSlackUser
 from main_logger import logger
 from utils import extract_usernames
 import validators
@@ -113,11 +114,13 @@ class SlackBotTest(unittest.TestCase):
              'is_owner': False, 'is_primary_owner': False, 'is_restricted': False, 'is_ultra_restricted': False,
              'is_bot': True, 'is_app_user': False, 'updated': 1572953111}]
         self.assertSetEqual({'michael.sizonenko.17', 'formtestbot', 'dethline88', 'slackbot', 'testbot'}, extract_usernames(test_slack_users_list))
-        with self.assertRaises(Exception):
+        with self.assertRaises(UnknownSlackUser):
             test_user_data = google_sheet_wrapper.get_data_by_user("test")
         test_user_data = google_sheet_wrapper.get_data_by_user('michael.sizonenko.17')
         empty_row_model = ClockRowItem()
         self.assertEqual(test_user_data, empty_row_model)
+        with self.assertRaises(UnknownSlackUser):
+            google_sheet_wrapper.clock_in("test")
 
 
 if __name__ == "__main__":
